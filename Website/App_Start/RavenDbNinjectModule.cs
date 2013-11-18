@@ -20,8 +20,12 @@ namespace Website.App_Start
                     {
                         DataDirectory = "App_Data",
                         Configuration = {Port = 8080},
-                        UseEmbeddedHttpServer = false
-
+                        UseEmbeddedHttpServer = 
+#if DEBUG               
+                        true 
+#else 
+                        false 
+#endif
                     }.Initialize();
                 }).InSingletonScope();
 
