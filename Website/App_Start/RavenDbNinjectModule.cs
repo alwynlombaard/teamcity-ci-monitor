@@ -37,8 +37,10 @@ namespace Website.App_Start
                    if (x == null)
                        return;
 
-                   x.SaveChanges();
-                   x.Dispose();
+                   using(x)
+                   {
+                       x.SaveChanges();
+                   }
                });
         
         }
