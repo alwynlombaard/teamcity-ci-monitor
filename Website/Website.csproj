@@ -169,10 +169,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Application.Api\Controllers\AdminController.cs" />
     <Compile Include="Application.Api\Controllers\TestApiController.cs" />
     <Compile Include="Application.Api\Dto\TestModel.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\NinjectResolver.cs" />
+    <Compile Include="App_Start\NinjectScope.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RavenDbNinjectModule.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />

@@ -1,3 +1,6 @@
+using System.Web.Http;
+using website.App_Start;
+
 [assembly: WebActivator.PreApplicationStartMethod(typeof(Website.App_Start.NinjectWebCommon), "Start")]
 [assembly: WebActivator.ApplicationShutdownMethodAttribute(typeof(Website.App_Start.NinjectWebCommon), "Stop")]
 
@@ -54,6 +57,7 @@ namespace Website.App_Start
         private static void RegisterServices(IKernel kernel)
         {
             kernel.Load(new RavenDbNinjectModule());
+            GlobalConfiguration.Configuration.DependencyResolver = new NinjectResolver(kernel);
         }        
     }
 }
