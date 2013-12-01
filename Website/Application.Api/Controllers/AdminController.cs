@@ -8,36 +8,9 @@ using Raven.Client;
 
 namespace website.Application.Api.Controllers
 {
-   
-    public class Test
-    {
-        public string Id { get; set; }
-        public string Value { get; set; }
-    }
-
     [RoutePrefix("admin")]
     public class AdminController : ApiController
     {
-        private readonly IDocumentSession _session;
-
-         public AdminController()
-         {
-             
-         }
-
-        public AdminController(IDocumentSession session)
-        {
-            _session = session;
-        }
-
-        [Route("tests")]
-        public IEnumerable<Test> GetTests()
-        {
-            return _session.Query<Test>()
-                .AsProjection<Test>()
-                .ToEnumerable();            
-        }
-
         [Route("appkeys/generate/{length:int}")]
         public string GetGeneratedKey(int length)
         {
