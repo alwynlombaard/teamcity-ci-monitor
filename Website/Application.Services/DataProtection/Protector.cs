@@ -17,6 +17,10 @@ namespace website.Application.Services.DataProtection
 
         public string GenerateKey(int length)
         {
+            if (length < 0)
+            {
+                return "";
+            }
             var buff = new byte[length/2];
             using (var rng = new RNGCryptoServiceProvider())
             {
