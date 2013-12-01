@@ -1,5 +1,8 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
+using System.Web;
+using System.Web.Security;
 
 namespace website.Application.Services.DataProtection
 {
@@ -7,11 +10,30 @@ namespace website.Application.Services.DataProtection
     {
         public string Protect(string value)
         {
-            return null;
+            if(value == null)
+            {
+                throw new ArgumentNullException();
+            }
+            var unprotectedBytes = Encoding.Unicode.GetBytes(value);
+            var protectedValue = MachineKey.Protect(unprotectedBytes);
+            return HttpServerUtility.UrlTokenEncode(protectedValue);
         }
 
         public string Unprotect(string value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException();
+            }
+            var protectedBytes = HttpServerUtility.UrlTokenDecode(value);
+            if (protectedBytes != null)
+            {
+                var unprotectedBytes = MachineKey.Unprotect(protectedBytes);
+                if (unprotectedBytes != null)
+                {
+                    return Encoding.Unicode.GetString(unprotectedBytes);
+                }
+            }
             return null;
         }
 

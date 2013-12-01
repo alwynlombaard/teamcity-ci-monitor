@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using website.Application.Services.DataProtection;
 
 namespace Website.Test.Unit.Application.Services.DataProtection
@@ -11,6 +12,42 @@ namespace Website.Test.Unit.Application.Services.DataProtection
         {
             
         }
+
+        [Test]
+        public void CanProtectValue()
+        {
+            var protector = new Protector();
+            var protectedValue = protector.Protect("a value");
+            Assert.NotNull(protectedValue);
+            Assert.AreNotEqual("a value", protectedValue);
+        }
+
+        [Test]
+        public void ProtectNullValueThrowsArgumentNullException()
+        {
+            var protector = new Protector();
+            Assert.Throws<ArgumentNullException>(() => protector.Protect(null));
+        }
+
+        [Test]
+        public void UnprotectNullValueThrowsArgumentNullException()
+        {
+            var protector = new Protector();
+            Assert.Throws<ArgumentNullException>(() => protector.Unprotect(null));
+        }
+        
+       [Test]
+       public void CanUnprotectValue()
+        {
+            var protector = new Protector();
+            var protectedValue = protector.Protect("a value");
+
+            var unprotectedValue = protector.Unprotect(protectedValue);
+
+            Assert.NotNull(protectedValue);
+            Assert.That(unprotectedValue, Is.EqualTo("a value"));
+        }
+
 
         [Test]
         public void CanGenerateKey()
