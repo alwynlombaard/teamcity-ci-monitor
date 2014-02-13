@@ -1,24 +1,27 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Http;
-using System.Web.Mvc;
-using Ninject.Infrastructure.Language;
 using Raven.Client;
 
 namespace website.Application.Api.Controllers
 {
     public class Configuration
     {
-        public string TeamcityUrl { get; set; }
+        public string Id { get; set; }
+        public string Setting { get; set; }
+    }
+
+    public class ConfigRequest
+    {
+        public string Uri { get; set; }
     }
 
     [RoutePrefix("admin")]
     public class AdminController : ApiController
     {
         private readonly IDocumentSession _session;
+        private const string TeamCityUrlId = "TeamCityUrl";
 
         public AdminController(IDocumentSession session)
         {
@@ -26,23 +29,31 @@ namespace website.Application.Api.Controllers
         }
 
         [Route("config/tc/url")]
-        public HttpStatusCodeResult PostTeamCityUrl(string uri)
+        public IHttpActionResult PostTeamCityUrl(ConfigRequest request)
         {
-            if (string.IsNullOrEmpty(uri))
+            if (request == null 
+                || string.IsNullOrEmpty(request.Uri) 
+                || !Uri.IsWellFormedUriString(request.Uri, UriKind.Absolute))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return BadRequest();
             }
-            var config = _session.Query<Configuration>()
-                .AsProjection<Configuration>()
-                .FirstOrDefault();
-            config = config ?? new Configuration();
-            config.TeamcityUrl = uri;
+            var config = _session.Load<Configuration>(TeamCityUrlId);
+            config = config ?? new Configuration { Id = TeamCityUrlId};
+            config.Setting = request.Uri;
             _session.Store(config);
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+            return Ok();
+        }
+
+        [Route("config/tc/url")]
+        public IHttpActionResult GetTeamCityUrl()
+        {
+            var config = _session.Load<Configuration>(TeamCityUrlId);
+            config = config ?? new Configuration {Id = TeamCityUrlId};
+            return Ok(config.Setting);
         }
 
         [Route("appkeys/generate/{length:int}")]
-        public string GetGeneratedKey(int length)
+        public IHttpActionResult GetGeneratedKey(int length)
         {
             if (length > 2048)
             {
@@ -60,7 +71,7 @@ namespace website.Application.Api.Controllers
                 sb.Append(string.Format("{0:X2}", value));
             }
 
-            return sb.ToString();
+            return Ok(sb.ToString());
         }
     }
 }
