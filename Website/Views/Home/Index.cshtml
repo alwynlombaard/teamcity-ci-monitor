@@ -17,7 +17,7 @@
         $.ajax({
             url: "/admin/config/tc/url",
             method: "GET"
-        }).done(function(data) {
+        }).done(function (data) {
             if (data) {
                 model.teamCityUrl(data);
             }
@@ -28,45 +28,50 @@
             $.ajax({
                 url: "/admin/config/tc/url",
                 method: "POST",
-                data: {Uri :  $("#url").val()}
+                data: { Uri: $("#url").val() }
             }).done(function () {
-                
+
             });
         });
     });
 </script>
 
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <p data-bind="text: teamCityUrl" class="navbar-brand">url<p>
+        </div>
+        <div class="navbar-collapse collapse">
+            <form class="navbar-form navbar-right" role="form">
+                <div class="form-group">
+                    <input data-bind="value: teamCityUrl" type="text" class="form-control" id="url" placeholder="TeamCity root url">
+                </div>
+                <button type="submit" class="btn btn-success" id="submit">
+                    Save
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="container">
 
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="page-header">
-                    <h1 id="forms">Forms</h1>
-                </div>
-            </div>
-        </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="page-header">
 
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="well">
-                    <form class="bs-example form-horizontal">
-                        <fieldset>
-                            <legend>Legend</legend>
-                            <div class="form-group">
-                                <label for="url" class="col-lg-2 control-label">TeamCity Url</label>
-                                <div class="col-lg-10">
-                                    <input data-bind="value: teamCityUrl" type="text" class="form-control" id="url" placeholder="TeamCity root url">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-10 col-lg-offset-2">
-                                    <button type="button" class="btn btn-primary" id="submit">Submit</button>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </form>
-                </div>
             </div>
         </div>
+    </div>
+
+    <div class="row">
+
+    </div>
 
 </div>
