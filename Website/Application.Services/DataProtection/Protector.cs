@@ -12,7 +12,7 @@ namespace website.Application.Services.DataProtection
         {
             if(value == null)
             {
-                throw new ArgumentNullException();
+                return null;
             }
             var unprotectedBytes = Encoding.Unicode.GetBytes(value);
             var protectedValue = MachineKey.Protect(unprotectedBytes);
@@ -23,7 +23,7 @@ namespace website.Application.Services.DataProtection
         {
             if (value == null)
             {
-                throw new ArgumentNullException();
+                return null;
             }
             var protectedBytes = HttpServerUtility.UrlTokenDecode(value);
             if (protectedBytes != null)

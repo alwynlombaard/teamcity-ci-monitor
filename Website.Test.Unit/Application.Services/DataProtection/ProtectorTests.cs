@@ -23,17 +23,17 @@ namespace Website.Test.Unit.Application.Services.DataProtection
         }
 
         [Test]
-        public void ProtectNullValueThrowsArgumentNullException()
+        public void ProtectNullValueReturnsNull()
         {
             var protector = new Protector();
-            Assert.Throws<ArgumentNullException>(() => protector.Protect(null));
+            Assert.IsNull(protector.Protect(null));
         }
 
         [Test]
-        public void UnprotectNullValueThrowsArgumentNullException()
+        public void UnprotectNullValueReturnsNull()
         {
             var protector = new Protector();
-            Assert.Throws<ArgumentNullException>(() => protector.Unprotect(null));
+            Assert.IsNull(protector.Unprotect(null));
         }
         
        [Test]

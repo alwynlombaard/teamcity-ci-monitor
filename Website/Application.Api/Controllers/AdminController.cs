@@ -2,34 +2,40 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Http;
+using Newtonsoft.Json;
 using Raven.Client;
+using website.Application.Services.DataProtection;
 
 namespace website.Application.Api.Controllers
 {
     public class Configuration
     {
         public string Id { get; set; }
-        public string Setting { get; set; }
+        public string Value { get; set; }
     }
 
-    public class ConfigRequest
+    public class TeamCityConfig
     {
         public string Uri { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
     }
 
     [RoutePrefix("admin")]
     public class AdminController : ApiController
     {
         private readonly IDocumentSession _session;
-        private const string TeamCityUrlId = "TeamCityUrl";
+        private readonly IProtector _protector;
+        private const string TeamCityConfigKey = "TeamCityConfig";
 
-        public AdminController(IDocumentSession session)
+        public AdminController(IDocumentSession session, IProtector protector)
         {
             _session = session;
+            _protector = protector;
         }
 
-        [Route("config/tc/url")]
-        public IHttpActionResult PostTeamCityUrl(ConfigRequest request)
+        [Route("config/tc")]
+        public IHttpActionResult PostTeamCityConfig(TeamCityConfig request)
         {
             if (request == null 
                 || string.IsNullOrEmpty(request.Uri) 
@@ -37,19 +43,31 @@ namespace website.Application.Api.Controllers
             {
                 return BadRequest();
             }
-            var config = _session.Load<Configuration>(TeamCityUrlId);
-            config = config ?? new Configuration { Id = TeamCityUrlId};
-            config.Setting = request.Uri;
+            request.Password = _protector.Protect(request.Password);
+            
+            var config = _session.Load<Configuration>(TeamCityConfigKey);
+            config = config ?? new Configuration { Id = TeamCityConfigKey};
+            config.Value = JsonConvert.SerializeObject(request);
+            
             _session.Store(config);
+            
             return Ok();
         }
 
-        [Route("config/tc/url")]
-        public IHttpActionResult GetTeamCityUrl()
+        [Route("config/tc")]
+        public IHttpActionResult GetTeamCityConfig()
         {
-            var config = _session.Load<Configuration>(TeamCityUrlId);
-            config = config ?? new Configuration {Id = TeamCityUrlId};
-            return Ok(config.Setting);
+            var config = _session.Load<Configuration>(TeamCityConfigKey);
+            config = config ?? new Configuration {Id = TeamCityConfigKey};
+
+            if (config.Value == null)
+            {
+                return Ok();
+            }
+
+            var teamcitySetting = JsonConvert.DeserializeObject<TeamCityConfig>(config.Value);
+            teamcitySetting.Password = _protector.Unprotect(teamcitySetting.Password);
+            return Ok(teamcitySetting);
         }
 
         [Route("appkeys/generate/{length:int}")]

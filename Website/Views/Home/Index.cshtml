@@ -8,27 +8,30 @@
     $(function () {
 
         var model = {
-            teamCityUrl: ko.observable("")
-        };
+            teamCityUrl: ko.observable(""),
+            teamCityPassword: ko.observable(""),
+            teamCityUserName: ko.observable("")
+    };
 
         ko.applyBindings(model);
 
-
         $.ajax({
-            url: "/admin/config/tc/url",
+            url: "/admin/config/tc",
             method: "GET"
         }).done(function (data) {
             if (data) {
-                model.teamCityUrl(data);
+                model.teamCityUrl(data.Uri);
+                model.teamCityPassword(data.Password);
+                model.teamCityUserName(data.UserName);
             }
         });
 
         $("#submit").on("click", function (e) {
             e.preventDefault();
             $.ajax({
-                url: "/admin/config/tc/url",
+                url: "/admin/config/tc",
                 method: "POST",
-                data: { Uri: $("#url").val() }
+                data: { Uri: $("#url").val(), UserName: $("#userName").val(), Password: $("#password").val() }
             }).done(function () {
 
             });
@@ -51,6 +54,12 @@
             <form class="navbar-form navbar-right" role="form">
                 <div class="form-group">
                     <input data-bind="value: teamCityUrl" type="text" class="form-control" id="url" placeholder="TeamCity root url">
+                </div>
+                <div class="form-group">
+                    <input data-bind="value: teamCityUserName"  type="text" class="form-control" id="userName" placeholder="TeamCity user">
+                </div>
+                <div class="form-group">
+                    <input data-bind="value: teamCityPassword" type="password" class="form-control" id="password" placeholder="TeamCity password">
                 </div>
                 <button type="submit" class="btn btn-success" id="submit">
                     Save

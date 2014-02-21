@@ -1,4 +1,5 @@
 using System.Web.Http;
+using website.Application.Services.DataProtection;
 using website.App_Start;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(Website.App_Start.NinjectWebCommon), "Start")]
@@ -58,6 +59,8 @@ namespace Website.App_Start
         {
             kernel.Load(new RavenDbNinjectModule());
             GlobalConfiguration.Configuration.DependencyResolver = new NinjectResolver(kernel);
+            kernel.Bind<IProtector>().To<Protector>();
+
         }        
     }
 }
