@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using website.Application.Services.DataProtection;
+using website.Application.Infrastructure.DataProtection;
 
 namespace Website.Test.Unit.Application.Services.DataProtection
 {

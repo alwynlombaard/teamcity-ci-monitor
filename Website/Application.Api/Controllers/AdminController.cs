@@ -4,23 +4,10 @@ using System.Text;
 using System.Web.Http;
 using Newtonsoft.Json;
 using Raven.Client;
-using website.Application.Services.DataProtection;
+using website.Application.Infrastructure.DataProtection;
 
 namespace website.Application.Api.Controllers
 {
-    public class Configuration
-    {
-        public string Id { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class TeamCityConfig
-    {
-        public string Uri { get; set; }
-        public string UserName { get; set; }
-        public string Password { get; set; }
-    }
-
     [RoutePrefix("admin")]
     public class AdminController : ApiController
     {

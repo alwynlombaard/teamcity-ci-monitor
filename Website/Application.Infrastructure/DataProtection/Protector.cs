@@ -1,10 +1,9 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using System.Web.Security;
 
-namespace website.Application.Services.DataProtection
+namespace website.Application.Infrastructure.DataProtection
 {
     public class Protector : IProtector
     {

@@ -75,6 +75,9 @@
     <Reference Include="Raven.Database">
       <HintPath>..\packages\RavenDB.Database.2.5.2750\lib\net45\Raven.Database.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.104.4.0\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
@@ -85,6 +88,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.0.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Spatial, Version=5.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\System.Spatial.5.2.0\lib\net40\System.Spatial.dll</HintPath>
@@ -170,10 +174,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Application.Api\Controllers\AdminController.cs" />
+    <Compile Include="Application.Api\Controllers\Configuration.cs" />
+    <Compile Include="Application.Api\Controllers\TeamCityConfig.cs" />
+    <Compile Include="Application.Api\Controllers\TeamCityController.cs" />
     <Compile Include="Application.Api\Controllers\TestApiController.cs" />
     <Compile Include="Application.Api\Dto\TestModel.cs" />
-    <Compile Include="Application.Services\DataProtection\IProtector.cs" />
-    <Compile Include="Application.Services\DataProtection\Protector.cs" />
+    <Compile Include="Application.Infrastructure\DataProtection\IProtector.cs" />
+    <Compile Include="Application.Infrastructure\DataProtection\Protector.cs" />
+    <Compile Include="Application.Services\Configuration\TeamCityConfigurationService.cs" />
+    <Compile Include="Application.Services\Configuration\ITeamCityConfigurationService.cs" />
+    <Compile Include="Application.Services\IApiClient.cs" />
+    <Compile Include="Application.Services\RestSharpApiClient.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\Build.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\Builds.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\BuildType.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\BuildTypes.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\Change.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\Changes.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\Project.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\Projects.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\Properties.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\Property.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\VcsRoot.cs" />
+    <Compile Include="Application.Services\TeamCity\Dto\VcsRootInstance.cs" />
+    <Compile Include="Application.Services\TeamCity\ITeamCityApiClient.cs" />
+    <Compile Include="Application.Services\TeamCity\TeamCityRestSharpApiClient.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\NinjectResolver.cs" />
@@ -290,8 +315,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Application.Domain\" />
-    <Folder Include="Application.Services\Encryption\" />
-    <Folder Include="Application.Services\Protection\" />
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
   </ItemGroup>

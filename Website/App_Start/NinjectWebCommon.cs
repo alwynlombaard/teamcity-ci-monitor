@@ -1,5 +1,8 @@
 using System.Web.Http;
-using website.Application.Services.DataProtection;
+using website.Application.Api.Controllers;
+using website.Application.Infrastructure.DataProtection;
+using website.Application.Services.Configuration;
+using website.Application.Services.TeamCity;
 using website.App_Start;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(Website.App_Start.NinjectWebCommon), "Start")]
@@ -17,7 +20,7 @@ namespace Website.App_Start
 
     public static class NinjectWebCommon 
     {
-        private static readonly Bootstrapper bootstrapper = new Bootstrapper();
+        private static readonly Bootstrapper Bootstrapper = new Bootstrapper();
 
         /// <summary>
         /// Starts the application
@@ -26,7 +29,7 @@ namespace Website.App_Start
         {
             DynamicModuleUtility.RegisterModule(typeof(OnePerRequestHttpModule));
             DynamicModuleUtility.RegisterModule(typeof(NinjectHttpModule));
-            bootstrapper.Initialize(CreateKernel);
+            Bootstrapper.Initialize(CreateKernel);
         }
         
         /// <summary>
@@ -34,7 +37,7 @@ namespace Website.App_Start
         /// </summary>
         public static void Stop()
         {
-            bootstrapper.ShutDown();
+            Bootstrapper.ShutDown();
         }
         
         /// <summary>
@@ -60,6 +63,11 @@ namespace Website.App_Start
             kernel.Load(new RavenDbNinjectModule());
             GlobalConfiguration.Configuration.DependencyResolver = new NinjectResolver(kernel);
             kernel.Bind<IProtector>().To<Protector>();
+            kernel.Bind<ITeamCityApiClient>().To<TeamCityRestSharpApiClient>();
+            kernel.Bind<ITeamCityConfigurationService>().To<TeamCityConfigurationService>();
+            kernel.Bind<TeamCityConfig>()
+                .ToMethod(c => kernel.Get<ITeamCityConfigurationService>().GetTeamCityConfig())
+                .InSingletonScope();
 
         }        
     }

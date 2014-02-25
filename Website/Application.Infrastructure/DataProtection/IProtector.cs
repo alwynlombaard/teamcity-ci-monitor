@@ -1,4 +1,4 @@
-﻿namespace website.Application.Services.DataProtection
+﻿namespace website.Application.Infrastructure.DataProtection
 {
     public interface IProtector
     {
