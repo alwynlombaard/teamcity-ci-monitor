@@ -1,4 +1,20 @@
-﻿body {
+﻿.buildTypeBox {
+   max-height: 165px;
+   min-height: 165px;
+   overflow: hidden;
+}
+
+.projectHeading {
+    font-size: 20px;
+    padding-bottom: 10px;   
+}
+
+.buildHeading {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+body {
     font-size: .85em;
     font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
     color: #232323;

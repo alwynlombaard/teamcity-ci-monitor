@@ -1,5 +1,7 @@
+using System;
+using System.Threading.Tasks;
 using RestSharp;
-using website.Application.Api.Controllers;
+using website.Application.Services.Configuration;
 using website.Application.Services.TeamCity.Dto;
 
 namespace website.Application.Services.TeamCity
@@ -10,11 +12,18 @@ namespace website.Application.Services.TeamCity
 
         public TeamCityRestSharpApiClient(TeamCityConfig config)
         {
-            _client = new RestSharpApiClient(new RestClient(config.Uri +  "/httpAuth/app/rest")
-                {
-                    Authenticator = new HttpBasicAuthenticator(config.UserName, config.Password),
-                    Timeout = 500
-                });
+            var baseUri = new Uri(config.Uri);
+
+            var apiUri = !string.IsNullOrWhiteSpace(config.UserName) 
+                ? new Uri(baseUri, "/httpAuth/app/rest") 
+                : new Uri(baseUri, "/guestAuth/app/rest");
+
+            var c = new RestClient(apiUri.ToString());
+            if (!string.IsNullOrWhiteSpace(config.UserName))
+            {
+                c.Authenticator = new HttpBasicAuthenticator(config.UserName, config.Password);
+            }
+            _client = new RestSharpApiClient(c);
         }
 
         public BuildType GetBuildType(string id)
@@ -55,6 +64,11 @@ namespace website.Application.Services.TeamCity
         public Builds GetLastBuildsForBuildType(string buildTypeId)
         {
             return _client.GetResponse<Builds>("buildTypes/" + buildTypeId + "/builds/?locator=count:1");
+        }
+
+        public Task<Builds> GetLastBuildsForBuildTypeAsync(string buildTypeId)
+        {
+            return _client.GetResponseAsync<Builds>("buildTypes/" + buildTypeId + "/builds/?locator=count:1");
         }
 
         public Builds GetAllRunningBuilds()

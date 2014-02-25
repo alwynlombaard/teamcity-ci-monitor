@@ -1,0 +1,86 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "TC build monitor";
+}
+
+<script>
+    $(function () {
+
+        var model = {
+            teamCityUrl: ko.observable(""),
+            teamCityPassword: ko.observable(""),
+            teamCityUserName: ko.observable("")
+    };
+
+        ko.applyBindings(model);
+
+        $.ajax({
+            url: "/admin/config/tc",
+            method: "GET"
+        }).done(function (data) {
+            if (data) {
+                model.teamCityUrl(data.Uri);
+                model.teamCityPassword(data.Password);
+                model.teamCityUserName(data.UserName);
+            }
+        });
+
+        $("#submit").on("click", function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: "/admin/config/tc",
+                method: "POST",
+                data: { Uri: $("#url").val(), UserName: $("#userName").val(), Password: $("#password").val() }
+            }).done(function () {
+
+            });
+        });
+    });
+</script>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <p data-bind="text: teamCityUrl" class="navbar-brand">url<p>
+        </div>
+        <div class="navbar-collapse collapse">
+            <form class="navbar-form navbar-right" role="form">
+                <div class="form-group">
+                    <input data-bind="value: teamCityUrl" type="text" class="form-control" id="url" placeholder="TeamCity root url">
+                </div>
+                <div class="form-group">
+                    <input data-bind="value: teamCityUserName"  type="text" class="form-control" id="userName" placeholder="TeamCity user">
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" id="password" placeholder="TeamCity password">
+                </div>
+                <button type="submit" class="btn btn-success" id="submit">
+                    Save
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="page-header">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+    </div>
+
+</div>

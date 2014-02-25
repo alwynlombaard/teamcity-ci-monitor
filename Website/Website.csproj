@@ -20,6 +20,8 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,20 +42,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Data.Edm, Version=5.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Data.Edm.5.2.0\lib\net40\Microsoft.Data.Edm.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Data.OData, Version=5.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Data.OData.5.2.0\lib\net40\Microsoft.Data.OData.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Configuration">
-      <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.1.8.0.0\lib\net35-full\Microsoft.WindowsAzure.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Storage">
-      <HintPath>..\packages\WindowsAzure.Storage.2.0.6.1\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
-    </Reference>
     <Reference Include="Ninject">
       <HintPath>..\packages\Ninject.3.0.1.10\lib\net45-full\Ninject.dll</HintPath>
     </Reference>
@@ -62,18 +50,6 @@
     </Reference>
     <Reference Include="Ninject.Web.Mvc">
       <HintPath>..\packages\Ninject.MVC3.3.0.0.6\lib\net45-full\Ninject.Web.Mvc.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\packages\RavenDB.Client.2.5.2750\lib\net45\Raven.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Embedded">
-      <HintPath>..\packages\RavenDB.Embedded.2.5.2750\lib\net45\Raven.Client.Embedded.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\packages\RavenDB.Client.2.5.2750\lib\net45\Raven.Client.Lightweight.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Database">
-      <HintPath>..\packages\RavenDB.Database.2.5.2750\lib\net45\Raven.Database.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\packages\RestSharp.104.4.0\lib\net4\RestSharp.dll</HintPath>
@@ -89,10 +65,6 @@
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.0.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Spatial, Version=5.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Spatial.5.2.0\lib\net40\System.Spatial.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -174,16 +146,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Application.Api\Controllers\AdminController.cs" />
-    <Compile Include="Application.Api\Controllers\Configuration.cs" />
-    <Compile Include="Application.Api\Controllers\TeamCityConfig.cs" />
+    <Compile Include="Application.Infrastructure\Store\CookieStore.cs" />
+    <Compile Include="Application.Infrastructure\Store\IStore.cs" />
+    <Compile Include="Application.Services\Configuration\Configuration.cs" />
     <Compile Include="Application.Api\Controllers\TeamCityController.cs" />
     <Compile Include="Application.Api\Controllers\TestApiController.cs" />
     <Compile Include="Application.Api\Dto\TestModel.cs" />
-    <Compile Include="Application.Infrastructure\DataProtection\IProtector.cs" />
-    <Compile Include="Application.Infrastructure\DataProtection\Protector.cs" />
+    <Compile Include="Application.Infrastructure\DataProtection\IDataProtector.cs" />
+    <Compile Include="Application.Infrastructure\DataProtection\DataProtector.cs" />
+    <Compile Include="Application.Services\Configuration\TeamCityConfig.cs" />
     <Compile Include="Application.Services\Configuration\TeamCityConfigurationService.cs" />
     <Compile Include="Application.Services\Configuration\ITeamCityConfigurationService.cs" />
     <Compile Include="Application.Services\IApiClient.cs" />
+    <Compile Include="Application.Services\Preferences\IPreferencesService.cs" />
+    <Compile Include="Application.Services\Preferences\PreferencesService.cs" />
     <Compile Include="Application.Services\RestSharpApiClient.cs" />
     <Compile Include="Application.Services\TeamCity\Dto\Build.cs" />
     <Compile Include="Application.Services\TeamCity\Dto\Builds.cs" />
@@ -204,7 +180,6 @@
     <Compile Include="App_Start\NinjectResolver.cs" />
     <Compile Include="App_Start\NinjectScope.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
-    <Compile Include="App_Start\RavenDbNinjectModule.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -280,6 +255,44 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Raven.Studio.xap" />
+    <None Include="Scripts\linq-vsdoc.js" />
+    <Content Include="Scripts\linq.js" />
+    <Content Include="Scripts\linq.min.js" />
+    <Content Include="Scripts\moment-with-langs.js" />
+    <Content Include="Scripts\moment-with-langs.min.js" />
+    <Content Include="Scripts\moment.js" />
+    <Content Include="Scripts\moment.min.js" />
+    <Content Include="Scripts\rx.aggregates.js" />
+    <Content Include="Scripts\rx.aggregates.min.js" />
+    <Content Include="Scripts\rx.async.compat.js" />
+    <Content Include="Scripts\rx.async.compat.min.js" />
+    <Content Include="Scripts\rx.async.js" />
+    <Content Include="Scripts\rx.async.min.js" />
+    <Content Include="Scripts\rx.binding.js" />
+    <Content Include="Scripts\rx.binding.min.js" />
+    <Content Include="Scripts\rx.coincidence.js" />
+    <Content Include="Scripts\rx.coincidence.min.js" />
+    <Content Include="Scripts\rx.compat.js" />
+    <Content Include="Scripts\rx.compat.min.js" />
+    <Content Include="Scripts\rx.experimental.js" />
+    <Content Include="Scripts\rx.experimental.min.js" />
+    <Content Include="Scripts\rx.joinpatterns.js" />
+    <Content Include="Scripts\rx.joinpatterns.min.js" />
+    <Content Include="Scripts\rx.jquery.js" />
+    <Content Include="Scripts\rx.jquery.min.js" />
+    <Content Include="Scripts\rx.js" />
+    <Content Include="Scripts\rx.lite.compat.js" />
+    <Content Include="Scripts\rx.lite.compat.min.js" />
+    <Content Include="Scripts\rx.lite.js" />
+    <Content Include="Scripts\rx.lite.min.js" />
+    <Content Include="Scripts\rx.min.js" />
+    <Content Include="Scripts\rx.testing.js" />
+    <Content Include="Scripts\rx.testing.min.js" />
+    <Content Include="Scripts\rx.time.js" />
+    <Content Include="Scripts\rx.time.min.js" />
+    <Content Include="Scripts\rx.virtualtime.js" />
+    <Content Include="Scripts\rx.virtualtime.min.js" />
+    <Content Include="Scripts\site.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
@@ -287,8 +300,6 @@
     <Content Include="Scripts\jquery-1.9.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <None Include="Scripts\jquery-1.9.1-vsdoc.js" />
-    <Content Include="Scripts\jquery-ui-1.8.24.js" />
-    <Content Include="Scripts\jquery-ui-1.8.24.min.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
@@ -312,6 +323,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\StyleGuide.cshtml" />
+    <Content Include="Views\Home\Preferences.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Application.Domain\" />
@@ -349,6 +361,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

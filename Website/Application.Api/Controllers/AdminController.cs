@@ -2,23 +2,18 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Http;
-using Newtonsoft.Json;
-using Raven.Client;
-using website.Application.Infrastructure.DataProtection;
+using website.Application.Services.Configuration;
 
 namespace website.Application.Api.Controllers
 {
     [RoutePrefix("admin")]
     public class AdminController : ApiController
     {
-        private readonly IDocumentSession _session;
-        private readonly IProtector _protector;
-        private const string TeamCityConfigKey = "TeamCityConfig";
+        private readonly ITeamCityConfigurationService _teamCityConfigurationService;
 
-        public AdminController(IDocumentSession session, IProtector protector)
+        public AdminController(ITeamCityConfigurationService teamCityConfigurationService)
         {
-            _session = session;
-            _protector = protector;
+            _teamCityConfigurationService = teamCityConfigurationService;
         }
 
         [Route("config/tc")]
@@ -30,13 +25,8 @@ namespace website.Application.Api.Controllers
             {
                 return BadRequest();
             }
-            request.Password = _protector.Protect(request.Password);
             
-            var config = _session.Load<Configuration>(TeamCityConfigKey);
-            config = config ?? new Configuration { Id = TeamCityConfigKey};
-            config.Value = JsonConvert.SerializeObject(request);
-            
-            _session.Store(config);
+            _teamCityConfigurationService.Save(request);
             
             return Ok();
         }
@@ -44,17 +34,7 @@ namespace website.Application.Api.Controllers
         [Route("config/tc")]
         public IHttpActionResult GetTeamCityConfig()
         {
-            var config = _session.Load<Configuration>(TeamCityConfigKey);
-            config = config ?? new Configuration {Id = TeamCityConfigKey};
-
-            if (config.Value == null)
-            {
-                return Ok();
-            }
-
-            var teamcitySetting = JsonConvert.DeserializeObject<TeamCityConfig>(config.Value);
-            teamcitySetting.Password = _protector.Unprotect(teamcitySetting.Password);
-            return Ok(teamcitySetting);
+            return Ok(_teamCityConfigurationService.Load());
         }
 
         [Route("appkeys/generate/{length:int}")]

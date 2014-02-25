@@ -1,33 +1,36 @@
 ﻿using Newtonsoft.Json;
-using Raven.Client;
-using website.Application.Api.Controllers;
-using website.Application.Infrastructure.DataProtection;
+using website.Application.Infrastructure.Store;
 
 namespace website.Application.Services.Configuration
 {
     public class TeamCityConfigurationService : ITeamCityConfigurationService
     {
+        private readonly IStore _store;
         private const string TeamCityConfigKey = "TeamCityConfig";
-        private readonly IDocumentSession _session;
-        private readonly IProtector _protector;
-
-        public TeamCityConfigurationService(IDocumentSession session, IProtector protector)
+        
+        public TeamCityConfigurationService(IStore store)
         {
-            _session = session;
-            _protector = protector;
+            _store = store;
+            
         }
 
-        public TeamCityConfig GetTeamCityConfig()
+        public TeamCityConfig Load()
         {
-            var config = _session.Load<Api.Controllers.Configuration>(TeamCityConfigKey);
-            if (config.Value == null)
+            var config = _store.Get(TeamCityConfigKey);
+            
+            return string.IsNullOrEmpty(config)
+                ? new TeamCityConfig { Uri="http://localhost"} 
+                : JsonConvert.DeserializeObject<TeamCityConfig>(config);
+        }
+
+        public void Save(TeamCityConfig config)
+        {
+            if (config == null)
             {
-                return new TeamCityConfig();
+                return;
             }
 
-            var teamcitySetting = JsonConvert.DeserializeObject<TeamCityConfig>(config.Value);
-            teamcitySetting.Password = _protector.Unprotect(teamcitySetting.Password);
-            return teamcitySetting;
+            _store.Save(TeamCityConfigKey, JsonConvert.SerializeObject(config));
         }
     }
 }

@@ -1,0 +1,77 @@
+﻿@model Website.Controllers.PreferencesModel
+
+@{
+    ViewBag.Title = "TC build monitor";
+}
+
+<script>
+    $(document).ready(function () {
+        "use strict";
+        function postAction(action) {
+            $.ajax({
+                url: action,
+                method: "POST",
+                cache: false
+            }).done(function () {
+
+            });
+        }
+        $(".selectedBuildTypeIds").on("click", function () {
+            var $this = $(this);
+            if ($this.is(":checked")) {
+                postAction("/tc/buildtype/" + $this.attr("value") + "/show");
+            } else {
+                postAction("/tc/buildtype/" + $this.attr("value") + "/hide");
+            }
+        });
+
+        $(".selectedProjectIds").on("click", function () {
+            var $this = $(this);
+            if ($this.is(":checked")) {
+                postAction("/tc/project/" + $this.attr("value") + "/show");
+            } else {
+                postAction("/tc/project/" + $this.attr("value") + "/hide");
+            }
+        });
+    });
+</script>
+
+
+<div class="container">
+    <p class="text-right">@Html.ActionLink("home", "Index", "Home")</p>
+    <div class="row">
+        @foreach (var project in Model.Projects.OrderBy(p => p.Name))
+        {
+            <div class="checkbox  alert-warning">
+                <label>
+                    <input id="project@(project.Id)"
+                           type="checkbox"
+                           name="selectedProjectIds"
+                           class="selectedProjectIds"
+                           value="@project.Id"
+                        @(Model.HiddenProjects.Contains(project.Id, StringComparer.CurrentCultureIgnoreCase) ? "" : "checked") />
+
+                    @Html.Label(project.Id, string.Format("{0}", project.Name))
+                </label>
+            </div>
+            foreach (var buildType in project.BuildTypes.OrderBy(b => b.Name))
+            {
+                <div class="checkbox alert-info">
+                    <label>
+                        <input 
+                            id="buildType@(buildType.Id)"
+                            type = "checkbox"
+                            name = "selectedBuildTypeIds"
+                            class = "selectedBuildTypeIds"
+                            value= "@buildType.Id"
+                            @(Model.HiddenBuildTypes.Contains(buildType.Id, StringComparer.CurrentCultureIgnoreCase) ? "" : "checked")
+                            />
+
+                        @Html.Label(buildType.Id, string.Format("{0}", buildType.Name))
+                    </label>
+                </div>
+            }
+
+        }
+    </div>
+</div>

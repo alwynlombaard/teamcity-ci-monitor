@@ -1,7 +1,9 @@
 using System.Web.Http;
 using website.Application.Api.Controllers;
 using website.Application.Infrastructure.DataProtection;
+using website.Application.Infrastructure.Store;
 using website.Application.Services.Configuration;
+using website.Application.Services.Preferences;
 using website.Application.Services.TeamCity;
 using website.App_Start;
 
@@ -60,14 +62,17 @@ namespace Website.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
-            kernel.Load(new RavenDbNinjectModule());
             GlobalConfiguration.Configuration.DependencyResolver = new NinjectResolver(kernel);
-            kernel.Bind<IProtector>().To<Protector>();
+            kernel.Bind<IDataProtector>().To<DataProtector>();
+            kernel.Bind<IPreferencesService>().To<PreferencesService>();
             kernel.Bind<ITeamCityApiClient>().To<TeamCityRestSharpApiClient>();
             kernel.Bind<ITeamCityConfigurationService>().To<TeamCityConfigurationService>();
             kernel.Bind<TeamCityConfig>()
-                .ToMethod(c => kernel.Get<ITeamCityConfigurationService>().GetTeamCityConfig())
-                .InSingletonScope();
+                .ToMethod(c => kernel.Get<ITeamCityConfigurationService>().Load())
+                .InRequestScope();
+            kernel.Bind<IStore>()
+                .ToMethod(x => new CookieStore(kernel.Get<HttpContextBase>(), kernel.Get<IDataProtector>()))
+                .InRequestScope();
 
         }        
     }
