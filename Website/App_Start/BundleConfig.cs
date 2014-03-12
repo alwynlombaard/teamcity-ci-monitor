@@ -1,7 +1,6 @@
-﻿using System.Web;
-using System.Web.Optimization;
+﻿using System.Web.Optimization;
 
-namespace Website
+namespace website.App_Start
 {
     public class BundleConfig
     {
@@ -22,6 +21,17 @@ namespace Website
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
+
+            bundles.Add(new ScriptBundle("~/bundles/site").Include(
+                    "~/Scripts/knockout-2.2.0.js",
+                    "~/Scripts/bootstrap.min.js",
+                    "~/Scripts/site.js",
+                    "~/Scripts/linq.js",
+                    "~/Scripts/moment.js",
+                    "~/Scripts/rx.js",
+                    "~/Scripts/rx.async.js",
+                    "~/Scripts/rx.time.js"
+                ));
 
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
 
