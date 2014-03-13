@@ -3,6 +3,8 @@ $(function () {
 
     function ViewModel() {
         var self = this;
+        self.lastUpdated = ko.observable("");
+        self.numberOfRunningBuilds = ko.observable(0);
         self.teamCityUrl = ko.observable("");
         self.teamCityPassword = ko.observable("");
         self.teamCityUserName = ko.observable("");
@@ -121,6 +123,8 @@ $(function () {
         });
 
         refreshBuildTypesForModel(data.Builds);
+        model.lastUpdated(moment().calendar());
+        model.numberOfRunningBuilds(data.Builds.length);
     }
     
     function updateModelWithBuild(build) {

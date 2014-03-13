@@ -45,6 +45,8 @@
     <div class="row" style="margin-top:25px;">
         <div class="col-lg-12">
             <div class="page-header">
+                <small class="pull-left" data-bind="text:lastUpdated"></small>
+                <small class="pull-left" data-bind="visible:numberOfRunningBuilds,text:', Total builds running:' + numberOfRunningBuilds()"></small>
                 <p class="text-right">@Html.ActionLink("customise", "Preferences", "Home")</p>
             </div>
         </div>
