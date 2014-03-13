@@ -16,7 +16,7 @@ namespace website.Application.Services.Configuration
 
         public TeamCityConfig Load()
         {
-            var config = _store.Get(TeamCityConfigKey);
+            var config = _store.GetWithDecryption(TeamCityConfigKey);
             
             return string.IsNullOrEmpty(config)
                 ? new TeamCityConfig { Uri="http://localhost"} 
@@ -30,7 +30,7 @@ namespace website.Application.Services.Configuration
                 return;
             }
 
-            _store.Save(TeamCityConfigKey, JsonConvert.SerializeObject(config));
+            _store.SaveWithEncryption(TeamCityConfigKey, JsonConvert.SerializeObject(config));
         }
     }
 }

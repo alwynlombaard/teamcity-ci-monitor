@@ -32,8 +32,13 @@ namespace website.Application.Infrastructure.Store
             {
                 throw new ArgumentNullException();
             }
-            value = _dataProtector.Protect(value);
             _response.SetCookie(new HttpCookie(key, value){ Expires = DateTime.MaxValue});
+        }
+
+        public void SaveWithEncryption(string key, string value)
+        {
+            value = _dataProtector.Protect(value);
+            Save(key, value);
         }
 
         public void Remove(string key)
@@ -56,7 +61,13 @@ namespace website.Application.Infrastructure.Store
             }
 
             var httpCookie = _request.Cookies.Get(key);
-            return httpCookie != null ? _dataProtector.Unprotect(httpCookie.Value) : null;
+            return httpCookie != null ? httpCookie.Value : null;
+        }
+
+        public string GetWithDecryption(string key)
+        {
+            var value = Get(key);
+            return _dataProtector.Unprotect(value);
         }
     }
 }
