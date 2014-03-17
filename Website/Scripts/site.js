@@ -9,6 +9,7 @@ $(function () {
         self.teamCityUrl = ko.observable("");
         self.teamCityPassword = ko.observable("");
         self.teamCityUserName = ko.observable("");
+        self.allRunningBuilds = ko.observableArray();
         self.projects = ko.observableArray();
         self.hideProject = function(project) {
             $.ajax({
@@ -117,6 +118,12 @@ $(function () {
             return;
         }
 
+        var trimmedAllRunningBuilds = Enumerable.From(model.allRunningBuilds())
+            .Where(function(x) {
+                return Enumerable.From(data.Builds).Any(function (b) { return b.Id === x.Id; });
+            }).ToArray();
+        model.allRunningBuilds(trimmedAllRunningBuilds);
+
         data.Builds.forEach(function (build) {
             if (build.Status === "SUCCESS") {
                 build.Status = "RUNNING";
@@ -135,6 +142,18 @@ $(function () {
                         b.PercentageComplete = b.RunningInfo.PercentageComplete;
                     }
                     updateModelWithBuild(b);
+
+                    var exist = Enumerable.From(model.allRunningBuilds()).Where(function(rb) { return rb.Id === build.Id; }).FirstOrDefault();
+
+                    if (exist) {
+                        var index = model.allRunningBuilds.indexOf(exist);
+                        var temp = model.allRunningBuilds();
+                        temp[index] = b;
+                        model.allRunningBuilds([]);
+                        model.allRunningBuilds(temp);
+                    } else {
+                        model.allRunningBuilds.push(b);
+                    }
                 },
                 function() {
                     model.notification("Could not retrieve build detail from TeamCity");

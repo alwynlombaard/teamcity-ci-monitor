@@ -55,44 +55,58 @@
             </div>
         </div>
     </div>
+    
+    <div data-bind="foreach: allRunningBuilds" >
+        <div class="row">
+            <div class="col-lg-6">
+                <small data-bind="text: PercentageComplete + '%'  + ' ' + Status + ':' + Id + ': ' + BuildTypeId + ': ' + Number"></small>
+                <small data-bind="text: RunningInfo.CurrentStageText"></small>
+                <div class="progress progress-striped active" style="height: 7px;">
+                    <div style="height: 10px;" class="progress-bar" role="progressbar" data-bind="css: {'progress-bar-warning': Status === 'RUNNING ERRORS'},attr: { 'aria-valuenow': RunningInfo.PercentageComplete, 'style': 'width:' + RunningInfo.PercentageComplete + '%' }" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div data-bind="foreach: projects" class="row">
-        <div class="col-lg-12">
-            <div class="alert alert-info">
-                <button data-bind="click: $root.hideProject" type="button" class="close">&times;</button>
-                
-                <div class="projectHeading" data-bind="text:Name"></div>
+        <div data-bind="foreach: projects" class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-info">
+                    <button data-bind="click: $root.hideProject" type="button" class="close">&times;</button>
 
-                <div data-bind="foreach: BuildTypeRows" class="col-lg-12 ">
-                    <div class="row">
+                    <div class="projectHeading" data-bind="text:Name"></div>
 
-                        <div data-bind="foreach: BuildTypes">
-                            <div class="col-lg-3">
-                                <div class="alert buildTypeBox" data-bind="css: {
+                    <div data-bind="foreach: BuildTypeRows" class="col-lg-12 ">
+                        <div class="row">
+
+                            <div data-bind="foreach: BuildTypes">
+                                <div class="col-lg-3">
+                                    <div class="alert buildTypeBox" data-bind="css: {
                                 'alert-warning' : LastBuild.Status === 'UNKNOWN' || LastBuild.Status === 'RUNNING',
                                 'alert-success' : LastBuild.Status === 'SUCCESS',
                                 'alert-danger' : LastBuild.Status === 'FAILURE' ||  LastBuild.Status === 'ERROR' ||  LastBuild.Status === 'RUNNING ERRORS'} ">
-                                    <button data-bind="click: $root.hideBuildType" type="button" class="close">&times;</button>
-                                    <p class="buildHeading">
-                                        <span class="glyphicon" data-bind="css: { 'glyphicon-ok': LastBuild.Status === 'SUCCESS', 'glyphicon-info-sign': LastBuild.Status === 'RUNNING', 'glyphicon-remove': LastBuild.Status === 'FAILURE' ||  LastBuild.Status === 'ERROR' ||  LastBuild.Status === 'RUNNING ERRORS' }"></span>&nbsp;
+                                        <button data-bind="click: $root.hideBuildType" type="button" class="close">&times;</button>
+                                        <p class="buildHeading">
+                                            <span class="glyphicon" data-bind="css: { 'glyphicon-ok': LastBuild.Status === 'SUCCESS', 'glyphicon-info-sign': LastBuild.Status === 'RUNNING', 'glyphicon-remove': LastBuild.Status === 'FAILURE' ||  LastBuild.Status === 'ERROR' ||  LastBuild.Status === 'RUNNING ERRORS' }"></span>&nbsp;
 
-                                        <span data-bind="visible:LastBuild.Status === 'UNKNOWN'">No Builds</span>
-                                        <span data-bind="visible:LastBuild.Status !== 'UNKNOWN',text:LastBuild.Status"></span>:
+                                            <span data-bind="visible:LastBuild.Status === 'UNKNOWN'">No Builds</span>
+                                            <span data-bind="visible:LastBuild.Status !== 'UNKNOWN',text:LastBuild.Status"></span>:
 
-                                        <span data-bind="text:Name"></span>
-                                    </p>
+                                            <span data-bind="text:Name"></span>
+                                        </p>
 
-                                    <p data-bind="visible: LastBuild.Status !== 'RUNNING' && LastBuild.Status !== 'RUNNING ERRORS', text:LastBuild.StartDate"></p>
+                                        <p data-bind="visible: LastBuild.Status !== 'RUNNING' && LastBuild.Status !== 'RUNNING ERRORS', text:LastBuild.StartDate"></p>
 
-                                    <p data-bind="visible: LastBuild.Number, text: 'Build: ' + LastBuild.Number"></p>
+                                        <p data-bind="visible: LastBuild.Number, text: 'Build: ' + LastBuild.Number"></p>
 
-                                    <p data-bind="visible: LastBuild.Status === 'RUNNING' || LastBuild.Status === 'RUNNING ERRORS' , text:LastBuild.StatusText"></p>
+                                        <p data-bind="visible: LastBuild.Status === 'RUNNING' || LastBuild.Status === 'RUNNING ERRORS' , text:LastBuild.StatusText"></p>
 
-                                    <div data-bind="visible: LastBuild.Status === 'RUNNING' || LastBuild.Status === 'RUNNING ERRORS' " class="progress progress-striped active" style="height: 10px;">
-                                        <div class="progress-bar" role="progressbar" data-bind="attr: { 'aria-valuenow': LastBuild.PercentageComplete, 'style': 'width:' + LastBuild.PercentageComplete + '%' }" aria-valuemin="0" aria-valuemax="100">
+                                        <div data-bind="visible: LastBuild.Status === 'RUNNING' || LastBuild.Status === 'RUNNING ERRORS' " class="progress progress-striped active" style="height: 10px;">
+                                            <div class="progress-bar" role="progressbar" data-bind="attr: { 'aria-valuenow': LastBuild.PercentageComplete, 'style': 'width:' + LastBuild.PercentageComplete + '%' }" aria-valuemin="0" aria-valuemax="100">
+                                            </div>
                                         </div>
-                                    </div>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -101,4 +115,3 @@
             </div>
         </div>
     </div>
-</div>
