@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -16,18 +17,14 @@ namespace website.Application.Services
 
         public T GetResponse<T>(string resource)
         {
-            try
+            var request = new RestRequest(resource);
+            var response = _client.Execute(request);
+            
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var request = new RestRequest(resource);
-                var response = _client.Execute(request);
-                return response.StatusCode == HttpStatusCode.OK
-                           ? JsonConvert.DeserializeObject<T>(response.Content)
-                           : default(T);
+                return JsonConvert.DeserializeObject<T>(response.Content);
             }
-            catch
-            {
-                return default(T);
-            }
+            throw new InvalidOperationException(string.Format("{0} {1} {2}", response.StatusCode, response.Content, response.ErrorMessage));
         }
 
         public Task<T> GetResponseAsync<T>(string resource)
@@ -38,10 +35,15 @@ namespace website.Application.Services
             {
                 if (response.ErrorException == null)
                 {
-                    var result = response.StatusCode == HttpStatusCode.OK
-                        ? JsonConvert.DeserializeObject<T>(response.Content)
-                        : default(T);
-                    tcs.SetResult(result);
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        var result = JsonConvert.DeserializeObject<T>(response.Content);
+                        tcs.SetResult(result);
+                    }
+                    else
+                    {
+                        tcs.SetException(new InvalidOperationException(string.Format("{0} {1} {2}", response.StatusCode, response.Content, response.ErrorMessage)));    
+                    }
                 }
                 else
                 {

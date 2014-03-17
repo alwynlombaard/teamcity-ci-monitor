@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using website.Application.Services.Preferences;
 using website.Application.Services.TeamCity;
+using website.Application.Services.TeamCity.Dto;
 
 namespace website.Application.Api.Controllers
 {
@@ -28,72 +30,94 @@ namespace website.Application.Api.Controllers
         [Route("model")]
         public IHttpActionResult GetModel()
         {
-            var model = LoadModel();
-            return Ok(model);
+            try
+            {
+                var model = LoadModel();
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         [Route("runningbuilds")]
         public IHttpActionResult GetRunningBuilds()
         {
-            var buildsDto = _apiClient.GetAllRunningBuilds();
-            var model = new RunningBuidlsModel();
-
-            if (buildsDto == null)
+            try
             {
+                var buildsDto = _apiClient.GetAllRunningBuilds();
+                var model = new RunningBuidlsModel();
+
+                if (buildsDto == null)
+                {
+                    return Ok(model);
+                }
+
+                foreach (var build in buildsDto.Build.OrderBy(b => b.Id))
+                {
+                    model.Builds.Add(new BuildModel
+                    {
+                        Id = build.Id,
+                        Status = build.Status,
+                        StatusText = build.StatusText,
+                        Number = build.Number,
+                        BuildTypeId = build.BuildTypeId,
+                        FinishDate = build.FinishDate,
+                        RunningInfo = new RunningInfoModel {PercentageComplete = build.PercentageComplete},
+                        WebUrl = build.WebUrl
+                    });
+                }
                 return Ok(model);
             }
-
-            foreach (var build in buildsDto.Build.OrderBy(b => b.Id))
+            catch (Exception ex)
             {
-                model.Builds.Add(new BuildModel
-                {
-                    Id = build.Id,
-                    Status = build.Status,
-                    StatusText = build.StatusText,
-                    Number = build.Number,
-                    BuildTypeId = build.BuildTypeId,
-                    FinishDate = build.FinishDate,
-                    RunningInfo = new RunningInfoModel{PercentageComplete = build.PercentageComplete},
-                    WebUrl = build.WebUrl
-                });
+                return InternalServerError(ex);
             }
-            return Ok(model);
         }
 
         [Route("build/{id}")]
         public IHttpActionResult GetBuild(string id)
         {
-            var build = _apiClient.GetBuild(id);
-            var model = new BuildModel();
-            if (build == null)
+            try
             {
+                var build = _apiClient.GetBuild(id);
+                var model = new BuildModel();
+                if (build == null)
+                {
+                    return Ok(model);
+                }
+                model.Id = build.Id;
+                model.Number = build.Number;
+                model.BuildTypeId = build.BuildType.Id;
+
+                if (build.RunningInfo != null)
+                {
+                    model.RunningInfo = new RunningInfoModel
+                    {
+                        PercentageComplete = build.RunningInfo.PercentageComplete,
+                        CurrentStageText = build.RunningInfo.CurrentStageText
+                    };
+                }
+
+                model.Status = build.Status;
+                model.StatusText = build.StatusText;
+                model.WebUrl = build.WebUrl;
+                model.StartDate = build.StartDate;
+                model.FinishDate = build.FinishDate;
+
                 return Ok(model);
             }
-            model.Id = build.Id;
-            model.Number = build.Number;
-            model.BuildTypeId = build.BuildType.Id;
-
-            if (build.RunningInfo != null)
+            catch (Exception ex)
             {
-                model.RunningInfo = new RunningInfoModel
-                {
-                   PercentageComplete = build.RunningInfo.PercentageComplete,
-                   CurrentStageText = build.RunningInfo.CurrentStageText
-                }; 
+                return InternalServerError(ex);
             }
-
-            model.Status = build.Status;
-            model.StatusText = build.StatusText;
-            model.WebUrl = build.WebUrl;
-            model.StartDate = build.StartDate;
-            model.FinishDate = build.FinishDate;
-
-            return Ok(model);
         }
 
         [Route("buildtype/builds")]
         public async Task<IHttpActionResult> PostLastBuilds(GetLastBuildsRequest request)
         {
+            
             var result = new List<BuildModel>();
 
             if (request == null || request.BuildTypeIds == null)
@@ -103,18 +127,54 @@ namespace website.Application.Api.Controllers
 
             foreach (var buildTypeId in request.BuildTypeIds)
             {
-                var buildDto = await _apiClient.GetLastBuildsForBuildTypeAsync(buildTypeId);
+                var model = new BuildModel();
+                try
+                {
+                    var buildDto = await _apiClient.GetLastBuildsForBuildTypeAsync(buildTypeId);
+                    if (buildDto == null)
+                    {
+                        continue;
+                    }
+                    var build = buildDto.Build.FirstOrDefault();
+
+                    if (build == null)
+                    {
+                        continue;
+                    }
+
+                    model.Id = build.Id;
+                    model.Number = build.Number;
+                    model.BuildTypeId = build.BuildTypeId;
+                    model.Status = build.Status;
+                    model.StatusText = build.StatusText;
+                    model.WebUrl = build.WebUrl;
+                    model.FinishDate = build.FinishDate;
+                    model.StartDate = build.StartDate;
+
+                    result.Add(model);
+                }
+                catch
+                {
+                    result.Add(new BuildModel {BuildTypeId = buildTypeId, Status = "Failed to update"});
+                }
+            }
+            return Ok(result);
+        }
+
+        [Route("buildType/{buildTypeId}/lastbuild")]
+        public IHttpActionResult GetLastBuild(string buildTypeId)
+        {
+            try
+            {
+                var buildDto = _apiClient.GetLastBuildsForBuildType(buildTypeId);
                 var model = new BuildModel();
                 if (buildDto == null)
                 {
-                    continue;
+                    return Ok(model);
                 }
                 var build = buildDto.Build.FirstOrDefault();
 
-                if (build == null)
-                {
-                    continue;
-                }
+                if (build == null) return Ok(model);
 
                 model.Id = build.Id;
                 model.Number = build.Number;
@@ -125,34 +185,12 @@ namespace website.Application.Api.Controllers
                 model.FinishDate = build.FinishDate;
                 model.StartDate = build.StartDate;
 
-                result.Add(model);
-            }
-            return Ok(result);
-        }
-
-        [Route("buildType/{buildTypeId}/lastbuild")]
-        public IHttpActionResult GetLastBuild(string buildTypeId)
-        {
-            var buildDto = _apiClient.GetLastBuildsForBuildType(buildTypeId);
-            var model = new BuildModel();
-            if (buildDto == null)
-            {
                 return Ok(model);
             }
-            var build = buildDto.Build.FirstOrDefault();
-
-            if (build == null) return Ok(model);
-
-            model.Id = build.Id;
-            model.Number = build.Number;
-            model.BuildTypeId = build.BuildTypeId;
-            model.Status = build.Status;
-            model.StatusText = build.StatusText;
-            model.WebUrl = build.WebUrl;
-            model.FinishDate = build.FinishDate;
-            model.StartDate = build.StartDate;
-
-            return Ok(model);
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         [Route("project/{Id}/hide")]

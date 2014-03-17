@@ -3,6 +3,7 @@ $(function () {
 
     function ViewModel() {
         var self = this;
+        self.notification = ko.observable("");
         self.lastUpdated = ko.observable("");
         self.numberOfRunningBuilds = ko.observable(0);
         self.teamCityUrl = ko.observable("");
@@ -54,18 +55,12 @@ $(function () {
             if (!data.Uri) {
                 return;
             }
-            getModel().subscribe(updateModel,
-                function(err) { console.log(err); },
-                function() {
-                    model.teamCityUrl(data.Uri);
-                    model.teamCityPassword(data.Password);
-                    model.teamCityUserName(data.UserName);
-                    refreshBuildTypesForModel();
-                    getRunningBuilds().retry().subscribe(updateModelWithRunningBuilds, function(err) {
-                        console.log(err);
-                    });
-                }
-            );
+            
+            model.teamCityUrl(data.Uri);
+            model.teamCityPassword(data.Password);
+            model.teamCityUserName(data.UserName);
+
+            retrieveModel();
         }
     });
 
@@ -76,19 +71,38 @@ $(function () {
             method: "POST",
             data: { Uri: $("#url").val(), UserName: $("#userName").val(), Password: $("#password").val() }
         }).done(function () {
-            getModel().subscribe(updateModel,
-                function (err) { console.log(err); },
-                function () {
-                    refreshBuildTypesForModel();
-                    getRunningBuilds().retry().subscribe(updateModelWithRunningBuilds, function (err) {
-                        console.log(err);
-                    });
-                }
-            );
+            retrieveModel();
         });
     });
-    
-    
+
+    function retrieveModel() {
+        getModelObservable().subscribe(updateModel,
+            function() { model.notification("Could not connect to TeamCity"); },
+            function() {
+                model.notification("");
+                refreshBuildTypesForModel();
+                retrieveRunningBuilds();
+            });
+    }
+
+    function retrieveRunningBuilds() {
+        getRunningBuildsObservable().retry(2).subscribe(
+            function(data) {
+                updateModelWithRunningBuilds(data);
+                model.notification("");
+            },
+            function() {
+                model.notification("Could not retrieve running builds from TeamCity");
+                setTimeout(function() {
+                    retrieveRunningBuilds();
+                }, 30000);
+            },
+            function() {
+                console.log("completed running builds");
+            });
+    }
+
+
     function updateModel(data) {
         if (!data.Projects) {
             return;
@@ -110,16 +124,21 @@ $(function () {
                 build.Status = "RUNNING ERRORS";
             }
 
-            getBuildDetail(build.Id).subscribe(function (b) {
-                if (!b) {
-                    return;
-                }
-                if (b.RunningInfo) {
-                    b.Status = build.Status;
-                    b.PercentageComplete = b.RunningInfo.PercentageComplete;
-                }
-                updateModelWithBuild(b);
-            });
+            getBuildDetailObservable(build.Id).subscribe(
+                function(b) {
+                    model.notification("");
+                    if (!b) {
+                        return;
+                    }
+                    if (b.RunningInfo) {
+                        b.Status = build.Status;
+                        b.PercentageComplete = b.RunningInfo.PercentageComplete;
+                    }
+                    updateModelWithBuild(b);
+                },
+                function() {
+                    model.notification("Could not retrieve build detail from TeamCity");
+                });
         });
 
         refreshBuildTypesForModel(data.Builds);
@@ -156,7 +175,7 @@ $(function () {
         model.projects(copy);
     }
 
-    function getRunningBuilds() {
+    function getRunningBuildsObservable() {
         return Rx.Observable.timer(10000, 30000)
             .selectMany(function() {
                 return Rx.Observable.fromPromise($.ajax({
@@ -165,21 +184,21 @@ $(function () {
             });
     }
    
-    function getModel() {
+    function getModelObservable() {
         var promise = $.ajax({
             url: "/tc/model"
         }).promise();
         return Rx.Observable.fromPromise(promise);
     }
 
-    function getBuildDetail(buildId) {
+    function getBuildDetailObservable(buildId) {
         var promise = $.ajax({
             url: "/tc/build/" + buildId
         }).promise();
         return Rx.Observable.fromPromise(promise);
     }
 
-    function getLastBuilds(buildTypeIds) {
+    function getLastBuildsObservable(buildTypeIds) {
         var promise = $.ajax({
             url: "/tc/buildType/builds",
             data: { BuildTypeIds: buildTypeIds },
@@ -234,17 +253,22 @@ $(function () {
         });
 
         if (lastBuildsToGet.length > 0) {
-            getLastBuilds(lastBuildsToGet).subscribe(function(data) {
-                if (!data) {
-                    return;
-                }
-                data.forEach(function(b) {
-                    setTimeout(function () {
-                        updateModelWithBuild(b);
-                    }, 0);
-                    
+            getLastBuildsObservable(lastBuildsToGet).subscribe(
+                function(data) {
+                    model.notification("");
+                    if (!data) {
+                        return;
+                    }
+                    data.forEach(function(b) {
+                        setTimeout(function() {
+                            updateModelWithBuild(b);
+                        }, 0);
+
+                    });
+                },
+                function() {
+                    model.notification("Could not retrieve last builds from TeamCity");
                 });
-            });
         }
     }
 
