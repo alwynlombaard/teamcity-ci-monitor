@@ -59,10 +59,14 @@
     <div data-bind="foreach: allRunningBuilds" >
         <div class="row">
             <div class="col-lg-3">
-                <small data-bind="text: PercentageComplete + '%'  + ' ' + Status + ':' + Id + ': ' + BuildTypeId + ': ' + Number"></small>
-                <small data-bind="text: StatusText"></small>
-                <div class="progress progress-striped active" style="height: 7px;">
-                    <div style="height: 10px;" class="progress-bar" role="progressbar" data-bind="css: {'progress-bar-warning': Status === 'RUNNING ERRORS'},attr: { 'aria-valuenow': RunningInfo.PercentageComplete, 'style': 'width:' + RunningInfo.PercentageComplete + '%' }" aria-valuemin="0" aria-valuemax="100">
+                <div class="alert" data-bind="css: {'alert-danger' : Status === 'RUNNING ERRORS', 'alert-info' : Status === 'RUNNING'}">
+                    <span class="glyphicon" data-bind="css: {'glyphicon-info-sign': Status === 'RUNNING', 'glyphicon-remove': Status === 'FAILURE' ||  Status === 'ERROR' ||  Status === 'RUNNING ERRORS' }"></span>
+                    <small data-bind=" text: PercentageComplete + '%' + ' ' + Status + ':' + Id + ': ' + BuildTypeId + ': ' + Number">
+                    </small>
+                    <small data-bind="text: StatusText"></small>
+                    <div class="progress progress-striped active" style="height: 7px;">
+                        <div style="height: 10px;" class="progress-bar" role="progressbar" data-bind="css: {'progress-bar-warning': Status === 'RUNNING ERRORS'},attr: { 'aria-valuenow': RunningInfo.PercentageComplete, 'style': 'width:' + RunningInfo.PercentageComplete + '%' }" aria-valuemin="0" aria-valuemax="100">
+                        </div>
                     </div>
                 </div>
             </div>
