@@ -8,12 +8,13 @@
     $(document).ready(function () {
         "use strict";
         function postAction(action) {
+            $('input').attr("disabled", true);
             $.ajax({
                 url: action,
                 method: "POST",
                 cache: false
-            }).done(function () {
-
+            }).always(function () {
+                $('input').attr("disabled", false);
             });
         }
         $(".selectedBuildTypeIds").on("click", function () {
@@ -40,38 +41,40 @@
 <div class="container">
     <p class="text-right">@Html.ActionLink("home", "Index", "Home")</p>
     <div class="row">
-        @foreach (var project in Model.Projects.OrderBy(p => p.Name))
-        {
-            <div class="checkbox  alert-warning">
-                <label>
-                    <input id="project@(project.Id)"
-                           type="checkbox"
-                           name="selectedProjectIds"
-                           class="selectedProjectIds"
-                           value="@project.Id"
-                        @(Model.HiddenProjects.Contains(project.Id, StringComparer.CurrentCultureIgnoreCase) ? "" : "checked") />
-
-                    @Html.Label(project.Id, string.Format("{0}", project.Name))
-                </label>
-            </div>
-            foreach (var buildType in project.BuildTypes.OrderBy(b => b.Name))
+        <div style="margin: 0 10px;">
+            @foreach (var project in Model.Projects.OrderBy(p => p.Name))
             {
-                <div class="checkbox alert-info">
+                <div class="checkbox  alert-warning">
                     <label>
-                        <input 
-                            id="buildType@(buildType.Id)"
-                            type = "checkbox"
-                            name = "selectedBuildTypeIds"
-                            class = "selectedBuildTypeIds"
-                            value= "@buildType.Id"
-                            @(Model.HiddenBuildTypes.Contains(buildType.Id, StringComparer.CurrentCultureIgnoreCase) ? "" : "checked")
-                            />
+                        <input id="project@(project.Id)"
+                               type="checkbox"
+                               name="selectedProjectIds"
+                               class="selectedProjectIds"
+                               value="@project.Id"
+                            @(Model.HiddenProjects.Contains(project.Id, StringComparer.CurrentCultureIgnoreCase) ? "" : "checked") />
 
-                        @Html.Label(buildType.Id, string.Format("{0}", buildType.Name))
+                        @Html.Label(string.Format("project{0}", project.Id), string.Format("{0}", project.Name))
                     </label>
                 </div>
-            }
+                <div style="margin: 0 50px;">
+                    @foreach (var buildType in project.BuildTypes.OrderBy(b => b.Name))
+                    {
+                        <div class="checkbox alert-info">
+                            <label>
+                                <input id="buildType@(buildType.Id)"
+                                       type="checkbox"
+                                       name="selectedBuildTypeIds"
+                                       class="selectedBuildTypeIds"
+                                       value="@buildType.Id"
+                                    @(Model.HiddenBuildTypes.Contains(buildType.Id, StringComparer.CurrentCultureIgnoreCase) ? "" : "checked") />
 
-        }
+                                @Html.Label(string.Format("buildType{0}", buildType.Id), string.Format("{0}", buildType.Name))
+                            </label>
+                        </div>
+                    }
+                </div>
+
+            }
+        </div>
     </div>
 </div>
