@@ -195,7 +195,7 @@ $(function () {
     }
 
     function getRunningBuildsObservable() {
-        return Rx.Observable.timer(10000, 30000)
+        return Rx.Observable.timer(10000, 10000)
             .selectMany(function() {
                 return Rx.Observable.fromPromise($.ajax({
                     url: "/tc/runningbuilds"
