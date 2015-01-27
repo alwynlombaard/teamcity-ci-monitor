@@ -35,6 +35,11 @@ namespace website.Application.Services.TeamCity
         {
             return _client.GetResponse<Build>("builds/" + id);
         }
+        
+        public Task<Build> GetBuildAsync(string id)
+        {
+            return  Task.Run(() => GetBuild(id));
+        }
 
         public Change GetChange(string id)
         {
@@ -54,11 +59,6 @@ namespace website.Application.Services.TeamCity
         public Projects GetAllProjects()
         {
             return _client.GetResponse<Projects>("projects");
-        }
-
-        public Changes GetChangesForBuild(string buildId)
-        {
-            return _client.GetResponse<Changes>("changes?locator=build:(id:" + buildId + ")");
         }
 
         public Builds GetLastBuildsForBuildType(string buildTypeId)

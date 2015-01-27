@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using website.Application.Api.Dto;
 using website.Application.Services.Preferences;
 using website.Application.Services.TeamCity;
-using website.Application.Services.TeamCity.Dto;
 
 namespace website.Application.Api.Controllers
 {
-
-    public class GetLastBuildsRequest
-    {
-        public string[] BuildTypeIds { get; set; }
-    }
-
     [RoutePrefix("tc")]
     public class TeamCityController : ApiController
     {
@@ -77,11 +72,11 @@ namespace website.Application.Api.Controllers
         }
 
         [Route("build/{id}")]
-        public IHttpActionResult GetBuild(string id)
+        public async Task<IHttpActionResult> GetBuild(string id)
         {
             try
             {
-                var build = _apiClient.GetBuild(id);
+                var build = await _apiClient.GetBuildAsync(id);
                 var model = new BuildModel();
                 if (build == null)
                 {
@@ -105,6 +100,7 @@ namespace website.Application.Api.Controllers
                 model.WebUrl = build.WebUrl;
                 model.StartDate = build.StartDate;
                 model.FinishDate = build.FinishDate;
+                model.LastChange = build.LastChanges.Change.Any() ? build.LastChanges.Change.First().Username : "None";
 
                 return Ok(model);
             }
@@ -135,8 +131,13 @@ namespace website.Application.Api.Controllers
                     {
                         continue;
                     }
-                    var build = buildDto.Build.FirstOrDefault();
 
+                    var build = buildDto.Build.FirstOrDefault();
+                    if (build != null)
+                    {
+                        build = await _apiClient.GetBuildAsync(build.Id.ToString(CultureInfo.InvariantCulture));
+                    }
+                   
                     if (build == null)
                     {
                         continue;
@@ -150,7 +151,7 @@ namespace website.Application.Api.Controllers
                     model.WebUrl = build.WebUrl;
                     model.FinishDate = build.FinishDate;
                     model.StartDate = build.StartDate;
-
+                    model.LastChange = build.LastChanges.Change.Any() ? build.LastChanges.Change.First().Username : "None";
                     result.Add(model);
                 }
                 catch
@@ -256,7 +257,7 @@ namespace website.Application.Api.Controllers
                     var buildType3 = buildTypeRow.Skip(2).FirstOrDefault();
                     var buildType4 = buildTypeRow.Skip(3).FirstOrDefault();
 
-                    var row = new BuildTypeRow();
+                    var row = new BuildTypeRowModel();
                     if (buildType1 != null)
                     {
                         row.BuildTypes.Add(new BuildTypeModel {Name = buildType1.Name, BuildTypeId = buildType1.Id});
@@ -282,78 +283,4 @@ namespace website.Application.Api.Controllers
             return model;
         }
     }
-
-    public class RunningBuidlsModel
-    {
-        public RunningBuidlsModel()
-        {
-            Builds = new List<BuildModel>();
-        }
-        public IList<BuildModel> Builds { get; set; }
-    }
-
-    public class Model
-    {
-        public Model()
-        {
-            Projects = new List<ProjectModel>();
-        }
-        public  IList<ProjectModel> Projects;
-    }
-    
-    public class ProjectModel
-    {
-        public ProjectModel()
-        {
-            BuildTypeRows = new List<BuildTypeRow>();
-        }
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public IList<BuildTypeRow> BuildTypeRows { get; set; }
-    }
-
-    public class BuildTypeModel
-    {
-        public BuildTypeModel()
-        {
-            LastBuild = new BuildModel();
-        }
-        public string Name { get; set; }
-        public string BuildTypeId { get; set; }
-        public BuildModel LastBuild { get; set; }
-        public string NextUpdate { get; set; }
-    }
-
-    public class BuildModel
-    {
-        public BuildModel()
-        {
-            Status = "UNKNOWN";
-        }
-        public int Id { get; set; }
-        public string Status { get; set; }
-        public string StatusText { get; set; }
-        public string Number { get; set; }
-        public string BuildTypeId { get; set; }
-        public string FinishDate { get; set; }
-        public string StartDate { get; set; }
-        public string WebUrl { get; set; }
-        public RunningInfoModel RunningInfo { get; set; }
-    }
-
-    public class RunningInfoModel
-    {
-        public int PercentageComplete { get; set; }
-        public string CurrentStageText { get; set; }
-    }
-
-    public class BuildTypeRow
-    {
-        public BuildTypeRow()
-        {
-            BuildTypes = new List<BuildTypeModel>();
-        }
-        public IList<BuildTypeModel> BuildTypes { get; set; }
-    }
-
 }

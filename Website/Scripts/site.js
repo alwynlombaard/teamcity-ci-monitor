@@ -195,7 +195,7 @@ $(function () {
     }
 
     function getRunningBuildsObservable() {
-        return Rx.Observable.timer(10000, 10000)
+        return Rx.Observable.timer(1000, 10000)
             .selectMany(function() {
                 return Rx.Observable.fromPromise($.ajax({
                     url: "/tc/runningbuilds"
@@ -272,22 +272,30 @@ $(function () {
         });
 
         if (lastBuildsToGet.length > 0) {
-            getLastBuildsObservable(lastBuildsToGet).subscribe(
-                function(data) {
-                    model.notification("");
-                    if (!data) {
-                        return;
-                    }
-                    data.forEach(function(b) {
-                        setTimeout(function() {
-                            updateModelWithBuild(b);
-                        }, 0);
 
-                    });
-                },
-                function() {
-                    model.notification("Could not retrieve last builds from TeamCity");
-                });
+            var source = Rx.Observable.fromArray(lastBuildsToGet)
+                .bufferWithCount(10);
+
+            source.subscribe(
+                  function(x) {
+                      getLastBuildsObservable(x).subscribe(
+                        function (data) {
+                            model.notification("");
+                            if (!data) {
+                                return;
+                            }
+                            data.forEach(function (b) {
+                                setTimeout(function () {
+                                    updateModelWithBuild(b);
+                                }, 0);
+
+                            });
+                        },
+                        function () {
+                            model.notification("Could not retrieve last builds from TeamCity");
+                        });
+                  },
+                  function (e) { console.log('onError: %s', e); });
         }
     }
 

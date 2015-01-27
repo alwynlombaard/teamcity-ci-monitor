@@ -146,6 +146,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Application.Api\Controllers\AdminController.cs" />
+    <Compile Include="Application.Api\Dto\BuildModel.cs" />
+    <Compile Include="Application.Api\Dto\BuildTypeModel.cs" />
+    <Compile Include="Application.Api\Dto\BuildTypeRowModel.cs" />
+    <Compile Include="Application.Api\Dto\GetLastBuildsRequest.cs" />
+    <Compile Include="Application.Api\Dto\Model.cs" />
+    <Compile Include="Application.Api\Dto\ProjectModel.cs" />
+    <Compile Include="Application.Api\Dto\RunningBuidlsModel.cs" />
+    <Compile Include="Application.Api\Dto\RunningInfoModel.cs" />
     <Compile Include="Application.Infrastructure\Store\CookieStore.cs" />
     <Compile Include="Application.Infrastructure\Store\IStore.cs" />
     <Compile Include="Application.Services\Configuration\Configuration.cs" />

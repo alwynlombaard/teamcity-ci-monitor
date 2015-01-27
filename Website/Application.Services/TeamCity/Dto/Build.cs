@@ -5,6 +5,11 @@ namespace website.Application.Services.TeamCity.Dto
     [DataContract]
     public class Build
     {
+        public Build()
+        {
+            LastChanges = new LastChanges();
+        }
+
        [DataMember(Name = "id")]
         public int Id { get; set; }
 
@@ -24,12 +29,13 @@ namespace website.Application.Services.TeamCity.Dto
         [DataMember(Name = "buildType")]
         public BuildType BuildType { get; set; }
 
-        public Changes Changes { get; set; }
-
+        [DataMember(Name = "lastChanges")]
+        public LastChanges LastChanges { get; set; }
 
         [DataMember(Name = "startDate")]
         public string StartDate { get; set; }
 
+        [DataMember(Name = "finishDate")]
         public string FinishDate { get; set; }
         
         public int PercentageComplete { get; set; }

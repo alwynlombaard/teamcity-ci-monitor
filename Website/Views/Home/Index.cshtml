@@ -71,6 +71,7 @@
                                 <span data-bind="visible:RunningInfo !== null,text:RunningInfo.PercentageComplete + '%'"></span>: <span data-bind="text:Status"></span>: <span data-bind="text:Id"></span>: <span data-bind="text:BuildTypeId"></span> : <span data-bind="text:Number"></span>
                             </small>
                             <small data-bind="text: StatusText"></small>
+                            <small><p data-bind="visible: StartDate, text: 'Build started: ' + StartDate"></p></small>
                             <div class="progress progress-striped" style="height: 7px;">
                                 <div style="height: 10px;" class="progress-bar" role="progressbar" data-bind="css: {'progress-bar-warning': Status === 'RUNNING ERRORS'},attr: { 'aria-valuenow': RunningInfo.PercentageComplete, 'style': 'width:' + RunningInfo.PercentageComplete + '%' }" aria-valuemin="0" aria-valuemax="100">
                                 </div>
@@ -107,10 +108,12 @@
 
                                             <span data-bind="text:Name"></span>
                                         </p>
-
-                                        <p data-bind="visible: LastBuild.Status !== 'RUNNING' && LastBuild.Status !== 'RUNNING ERRORS', text:LastBuild.StartDate"></p>
+                                        
+                                        <p data-bind="visible: LastBuild.StartDate, text: LastBuild.StartDate"></p>
 
                                         <p data-bind="visible: LastBuild.Number, text: 'Build: ' + LastBuild.Number"></p>
+                                        
+                                        <p data-bind="visible:  LastBuild.LastChange, text: 'Change: ' + LastBuild.LastChange"></p>
 
                                         <p data-bind="visible: LastBuild.Status === 'RUNNING' || LastBuild.Status === 'RUNNING ERRORS' , text:LastBuild.StatusText"></p>
 
